@@ -12,7 +12,10 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.ANY;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.tmf.dsmapi.commons.utils.CustomJsonDateSerializer;
@@ -27,7 +30,7 @@ public class UsageEvent implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-//    @JsonIgnore
+    @JsonIgnore
     private String id;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -36,9 +39,9 @@ public class UsageEvent implements Serializable {
 
     @Enumerated(value = EnumType.STRING)
     private UsageEventTypeEnum eventType;
-
-    private Usage event; //check for object
-
+@JsonIgnore
+    private Usage resource; //check for object
+@JsonIgnore
     public String getId() {
         return id;
     }
@@ -62,18 +65,43 @@ public class UsageEvent implements Serializable {
     public void setEventType(UsageEventTypeEnum eventType) {
         this.eventType = eventType;
     }
+    @JsonAutoDetect(fieldVisibility = ANY)
+    class EventBody {
+        private Usage usage;
+        public Usage getUsage() {
+            return usage;
+        }
+        public EventBody(Usage usage) { 
+        this.usage = usage;
+    }
+    
+       
+    }
+   @JsonProperty("event")
+   public EventBody getEvent() {
+       
+       return new EventBody(getResource() );
+   }
+    
 
-    public Usage getEvent() {
-        return event;
+
+    @JsonIgnore
+    public Usage getResource() {
+        
+        
+        return resource;
     }
 
-    public void setEvent(Usage event) {
-        this.event = event;
+    public void setResource(Usage resource) {
+        this.resource = resource;
     }
 
     @Override
     public String toString() {
-        return "UsageEvent{" + "id=" + id + ", eventTime=" + eventTime + ", eventType=" + eventType + ", event=" + event + '}';
+        return "UsageEvent{" + "id=" + id + ", eventTime=" + eventTime + ", eventType=" + eventType + ", resource=" + resource + '}';
     }
+
+
+    
 
 }

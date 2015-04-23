@@ -59,6 +59,50 @@ public class UsageResource {
         Response response = Response.status(Response.Status.CREATED).entity(entity).build();
         return response;
     }
+    
+    @GET
+    @Produces({"application/json"})
+    public Response find(@Context UriInfo info) throws BadUsageException {
+
+        // search queryParameters
+        MultivaluedMap<String, String> queryParameters = info.getQueryParameters();
+
+        Map<String, List<String>> mutableMap = new HashMap();
+        for (Map.Entry<String, List<String>> e : queryParameters.entrySet()) {
+            mutableMap.put(e.getKey(), e.getValue());
+        }
+
+        // fields to filter view
+        Set<String> fieldSet = URIParser.getFieldsSelection(mutableMap);
+
+        Set<Usage> resultList = findByCriteria(mutableMap);
+
+        Response response;
+        if (fieldSet.isEmpty() || fieldSet.contains(URIParser.ALL_FIELDS)) {
+            response = Response.ok(resultList).build();
+        } else {
+            fieldSet.add(URIParser.ID_FIELD);
+            List<ObjectNode> nodeList = Jackson.createNodes(resultList, fieldSet);
+            response = Response.ok(nodeList).build();
+        }
+        return response;
+    }
+
+    // return Set of unique elements to avoid List with same elements in case of join
+    private Set<Usage> findByCriteria(Map<String, List<String>> criteria) throws BadUsageException {
+
+        List<Usage> resultList = null;
+        if (criteria != null && !criteria.isEmpty()) {
+            resultList = usageFacade.findByCriteria(criteria, Usage.class);
+        } else {
+            resultList = usageFacade.findAll();
+        }
+        if (resultList == null) {
+            return new LinkedHashSet<Usage>();
+        } else {
+            return new LinkedHashSet<Usage>(resultList);
+        }
+    }
 
 
     @GET

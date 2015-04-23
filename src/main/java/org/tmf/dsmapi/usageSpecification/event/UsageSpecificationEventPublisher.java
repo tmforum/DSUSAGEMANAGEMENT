@@ -58,7 +58,7 @@ public class UsageSpecificationEventPublisher implements UsageSpecificationEvent
         UsageSpecificationEvent event = new UsageSpecificationEvent();
         event.setEventTime(date);
         event.setEventType(UsageSpecificationEventTypeEnum.UsageSpecificationCreationNotification);
-        event.setEvent(bean);
+        event.setResource(bean);
         publish(event);
 
     }
@@ -68,7 +68,7 @@ public class UsageSpecificationEventPublisher implements UsageSpecificationEvent
         UsageSpecificationEvent event = new UsageSpecificationEvent();
         event.setEventTime(date);
         event.setEventType(UsageSpecificationEventTypeEnum.UsageSpecificationDeletionNotification);
-        event.setEvent(bean);
+        event.setResource(bean);
         publish(event);
     }
 	
@@ -77,7 +77,7 @@ public class UsageSpecificationEventPublisher implements UsageSpecificationEvent
         UsageSpecificationEvent event = new UsageSpecificationEvent();
         event.setEventTime(date);
         event.setEventType(UsageSpecificationEventTypeEnum.UsageSpecificationUpdateNotification);
-        event.setEvent(bean);
+        event.setResource(bean);
         publish(event);
     }
 
@@ -86,7 +86,7 @@ public class UsageSpecificationEventPublisher implements UsageSpecificationEvent
         UsageSpecificationEvent event = new UsageSpecificationEvent();
         event.setEventTime(date);
         event.setEventType(UsageSpecificationEventTypeEnum.UsageSpecificationValueChangeNotification);
-        event.setEvent(bean);
+        event.setResource(bean);
         publish(event);
     }
 }

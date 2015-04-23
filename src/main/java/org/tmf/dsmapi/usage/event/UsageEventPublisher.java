@@ -58,7 +58,7 @@ public class UsageEventPublisher implements UsageEventPublisherLocal {
         UsageEvent event = new UsageEvent();
         event.setEventTime(date);
         event.setEventType(UsageEventTypeEnum.UsageCreationNotification);
-        event.setEvent(bean);
+        event.setResource(bean);
         publish(event);
 
     }
@@ -68,7 +68,7 @@ public class UsageEventPublisher implements UsageEventPublisherLocal {
         UsageEvent event = new UsageEvent();
         event.setEventTime(date);
         event.setEventType(UsageEventTypeEnum.UsageDeletionNotification);
-        event.setEvent(bean);
+        event.setResource(bean);
         publish(event);
     }
 	
@@ -77,7 +77,7 @@ public class UsageEventPublisher implements UsageEventPublisherLocal {
         UsageEvent event = new UsageEvent();
         event.setEventTime(date);
         event.setEventType(UsageEventTypeEnum.UsageUpdateNotification);
-        event.setEvent(bean);
+        event.setResource(bean);
         publish(event);
     }
 
@@ -86,7 +86,7 @@ public class UsageEventPublisher implements UsageEventPublisherLocal {
         UsageEvent event = new UsageEvent();
         event.setEventTime(date);
         event.setEventType(UsageEventTypeEnum.UsageValueChangeNotification);
-        event.setEvent(bean);
+        event.setResource(bean);
         publish(event);
     }
 
@@ -95,7 +95,7 @@ public class UsageEventPublisher implements UsageEventPublisherLocal {
         UsageEvent event = new UsageEvent();
         event.setEventTime(date);
         event.setEventType(UsageEventTypeEnum.UsageStatusChangedNotification);
-        event.setEvent(bean);
+        event.setResource(bean);
         publish(event);
     }
 }

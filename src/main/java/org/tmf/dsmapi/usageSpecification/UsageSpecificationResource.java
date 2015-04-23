@@ -24,6 +24,7 @@ import org.tmf.dsmapi.commons.exceptions.BadUsageException;
 import org.tmf.dsmapi.commons.exceptions.UnknownResourceException;
 import org.tmf.dsmapi.commons.utils.Jackson;
 import org.tmf.dsmapi.commons.utils.URIParser;
+import org.tmf.dsmapi.usage.model.Usage;
 import org.tmf.dsmapi.usage.model.UsageSpecification;
 import org.tmf.dsmapi.usageSpecification.UsageSpecificationFacade;
 import org.tmf.dsmapi.usageSpecification.event.UsageSpecificationEventPublisherLocal;
@@ -95,7 +96,49 @@ public class UsageSpecificationResource {
         return response;
     }
 
+@GET
+    @Produces({"application/json"})
+    public Response find(@Context UriInfo info) throws BadUsageException {
 
+        // search queryParameters
+        MultivaluedMap<String, String> queryParameters = info.getQueryParameters();
+
+        Map<String, List<String>> mutableMap = new HashMap();
+        for (Map.Entry<String, List<String>> e : queryParameters.entrySet()) {
+            mutableMap.put(e.getKey(), e.getValue());
+        }
+
+        // fields to filter view
+        Set<String> fieldSet = URIParser.getFieldsSelection(mutableMap);
+
+        Set<UsageSpecification> resultList = findByCriteria(mutableMap);
+
+        Response response;
+        if (fieldSet.isEmpty() || fieldSet.contains(URIParser.ALL_FIELDS)) {
+            response = Response.ok(resultList).build();
+        } else {
+            fieldSet.add(URIParser.ID_FIELD);
+            List<ObjectNode> nodeList = Jackson.createNodes(resultList, fieldSet);
+            response = Response.ok(nodeList).build();
+        }
+        return response;
+    }
+
+    // return Set of unique elements to avoid List with same elements in case of join
+    private Set<UsageSpecification> findByCriteria(Map<String, List<String>> criteria) throws BadUsageException {
+
+        List<UsageSpecification> resultList = null;
+        if (criteria != null && !criteria.isEmpty()) {
+            resultList = usageSpecificationFacade.findByCriteria(criteria, UsageSpecification.class);
+        } else {
+            resultList = usageSpecificationFacade.findAll();
+        }
+        if (resultList == null) {
+            return new LinkedHashSet<UsageSpecification>();
+        } else {
+            return new LinkedHashSet<UsageSpecification>(resultList);
+        }
+    }
 
     /**
      *
@@ -121,7 +164,7 @@ public class UsageSpecificationResource {
             // remove event(s) binding to the resource
             List<UsageSpecificationEvent> events = eventFacade.findAll();
             for (UsageSpecificationEvent event : events) {
-                if (event.getEvent().getId().equals(id)) {
+                if (event.getResource().getId().equals(id)) {
                     eventFacade.remove(event.getId());
                 }
             }

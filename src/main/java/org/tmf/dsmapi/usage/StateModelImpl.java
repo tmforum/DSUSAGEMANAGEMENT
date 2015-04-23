@@ -22,26 +22,26 @@ public class StateModelImpl extends StateModelBase<Status> {
     @Override
     protected void draw() {
         // First
-        from(Status.RECEIVED).to(
-                Status.REJECTED,
-                Status.GUIDED);
+        from(Status.Received).to(
+                Status.Rejected,
+                Status.Guided);
 
         // Somewhere
-        from(Status.REJECTED).to(
-                Status.RECYCLED);       
-        from(Status.GUIDED).to(
-                Status.RATED,
-                Status.REJECTED);
-        from(Status.RECYCLED).to(
-                Status.REJECTED,
-                Status.GUIDED);
-        from(Status.RATED).to(
-                Status.RERATE);
-        from(Status.RERATE).to(
-                Status.RATED);
+        from(Status.Rejected).to(
+                Status.Recycled);       
+        from(Status.Guided).to(
+                Status.Rated,
+                Status.Rejected);
+        from(Status.Recycled).to(
+                Status.Rejected,
+                Status.Guided);
+        from(Status.Rated).to(
+                Status.Rerate);
+        from(Status.Rerate).to(
+                Status.Rated);
 
         // Final
-        from(Status.BILLED);
+        from(Status.Billed);
 //        from(Status.REJECTED);
     }
 }

@@ -152,7 +152,7 @@ public class UsageSpecificationAdminResource {
             // remove event(s) binding to the resource
             List<UsageSpecificationEvent> events = eventFacade.findAll();
             for (UsageSpecificationEvent event : events) {
-                if (event.getEvent().getId().equals(id)) {
+                if (event.getResource().getId().equals(id)) {
                     eventFacade.remove(event.getId());
                 }
             }
@@ -204,7 +204,7 @@ public class UsageSpecificationAdminResource {
         int previousRows = eventFacade.count();
         List<UsageSpecificationEvent> events = eventFacade.findAll();
         for (UsageSpecificationEvent event : events) {
-            if (event.getEvent().getId().equals(id)) {
+            if (event.getResource().getId().equals(id)) {
                 eventFacade.remove(event.getId());
 
             }

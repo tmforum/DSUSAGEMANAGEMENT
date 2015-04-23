@@ -40,19 +40,19 @@ import org.codehaus.jackson.annotate.JsonValue;
 public enum Status {
 
     @XmlEnumValue("Received")
-    RECEIVED("Received"),
+    Received("Received"),
     @XmlEnumValue("Rejected")
-    REJECTED("Rejected"),
+    Rejected("Rejected"),
     @XmlEnumValue("Recycled")
-    RECYCLED("Recycled"),
+    Recycled("Recycled"),
     @XmlEnumValue("Guided")
-    GUIDED("Guided"),
+    Guided("Guided"),
     @XmlEnumValue("Rated")
-    RATED("Rated"),
+    Rated("Rated"),
     @XmlEnumValue("Rerate")
-    RERATE("Rerate"),
+    Rerate("Rerate"),
     @XmlEnumValue("Billed")
-    BILLED("Billed");
+    Billed("Billed");
     private final String value;
 
     Status(String v) {

@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.tmf.dsmapi.commons.utils.CustomDateTimeAdapter;
 
@@ -101,7 +102,7 @@ public class RatedProductUsage
     protected Float bucketValueConvertedInAmount;
     protected String currencyCode;
     protected String productRef;
-    @XmlAttribute(name = "Hjid")
+    @JsonIgnore
     protected Long hjid;
 
     /**
@@ -428,7 +429,7 @@ public class RatedProductUsage
     @Id
     @Column(name = "HJID")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @org.codehaus.jackson.annotate.JsonIgnore
+    @JsonIgnore
     public Long getHjid() {
         return hjid;
     }

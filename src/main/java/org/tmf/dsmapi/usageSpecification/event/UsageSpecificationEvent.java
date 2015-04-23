@@ -12,7 +12,10 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.ANY;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.tmf.dsmapi.commons.utils.CustomJsonDateSerializer;
@@ -37,7 +40,7 @@ public class UsageSpecificationEvent implements Serializable {
     @Enumerated(value = EnumType.STRING)
     private UsageSpecificationEventTypeEnum eventType;
 
-    private UsageSpecification event; //check for object
+    private UsageSpecification resource; //check for object
 
     public String getId() {
         return id;
@@ -63,17 +66,45 @@ public class UsageSpecificationEvent implements Serializable {
         this.eventType = eventType;
     }
 
-    public UsageSpecification getEvent() {
-        return event;
+    
+
+   
+    
+    @JsonAutoDetect(fieldVisibility = ANY)
+    class EventBody {
+        private UsageSpecification usageSpecification;
+        public UsageSpecification getUsageSpecification() {
+            return usageSpecification;
+        }
+        public EventBody(UsageSpecification usageSpecification) { 
+        this.usageSpecification = usageSpecification;
+    }
+    
+       
+    }
+   @JsonProperty("event")
+   public EventBody getEvent() {
+       
+       return new EventBody(getResource() );
+   }
+    
+@JsonIgnore
+    public UsageSpecification getResource() {
+        
+        
+        return resource;
     }
 
-    public void setEvent(UsageSpecification event) {
-        this.event = event;
+    public void setResource(UsageSpecification resource) {
+        this.resource = resource;
     }
 
     @Override
     public String toString() {
-        return "UsageSpecificationEvent{" + "id=" + id + ", eventTime=" + eventTime + ", eventType=" + eventType + ", event=" + event + '}';
+        return "UsageSpecificationEvent{" + "id=" + id + ", eventTime=" + eventTime + ", eventType=" + eventType + ", resource=" + resource + '}';
     }
+
+
+   
 
 }

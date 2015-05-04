@@ -1,6 +1,8 @@
 package org.tmf.dsmapi.usageSpecification;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,11 +20,16 @@ import javax.ws.rs.core.Response;
 import org.tmf.dsmapi.commons.exceptions.BadUsageException;
 import org.tmf.dsmapi.commons.exceptions.UnknownResourceException;
 import org.tmf.dsmapi.commons.jaxrs.Report;
+import org.tmf.dsmapi.usage.model.UsageCharacteristic;
+import org.tmf.dsmapi.usage.model.UsageSpecCharacteristic;
+import org.tmf.dsmapi.usage.model.UsageSpecCharacteristicValue;
 import org.tmf.dsmapi.usage.model.UsageSpecification;
+import org.tmf.dsmapi.usage.model.ValidFor;
 import org.tmf.dsmapi.usageSpecification.UsageSpecificationFacade;
 import org.tmf.dsmapi.usageSpecification.event.UsageSpecificationEvent;
 import org.tmf.dsmapi.usageSpecification.event.UsageSpecificationEventFacade;
 import org.tmf.dsmapi.usageSpecification.event.UsageSpecificationEventPublisherLocal;
+import sun.util.calendar.Gregorian;
 
 @Stateless
 @Path("admin/usageSpecification")
@@ -44,6 +51,7 @@ public class UsageSpecificationAdminResource {
     /**
      *
      * For test purpose only
+     *
      * @param entities
      * @return
      */
@@ -89,7 +97,7 @@ public class UsageSpecificationAdminResource {
         if (usageSpecification != null) {
             entity.setId(id);
             usageSpecificationFacade.edit(entity);
-            publisher.valueChangedNotification(entity, new Date());
+            publisher.updateNotification(entity, new Date());
             // 201 OK + location
             response = Response.status(Response.Status.CREATED).entity(entity).build();
 
@@ -103,6 +111,7 @@ public class UsageSpecificationAdminResource {
     /**
      *
      * For test purpose only
+     *
      * @return
      * @throws org.tmf.dsmapi.commons.exceptions.UnknownResourceException
      */
@@ -130,6 +139,7 @@ public class UsageSpecificationAdminResource {
     /**
      *
      * For test purpose only
+     *
      * @param id
      * @return
      * @throws UnknownResourceException
@@ -230,5 +240,114 @@ public class UsageSpecificationAdminResource {
     @Produces({"application/json"})
     public Report count() {
         return new Report(usageSpecificationFacade.count());
+    }
+
+    @GET
+    @Produces({"application/json"})
+    @Path("proto")
+    public UsageSpecification proto() {
+        UsageSpecification usageSpecification = new UsageSpecification();
+        usageSpecification.setId(new Long(22));
+        usageSpecification.setHref("http://serverlocation:port/usageManagement/usageSpecification/22");
+        usageSpecification.setName("VoiceSpec");
+        usageSpecification.setDescription("Spec for voice calls usage");
+        
+        ValidFor validFor = new ValidFor();
+        GregorianCalendar gc = new GregorianCalendar(2015, 04, 30, 12, 00, 00);
+        validFor.setStartDateTime(gc.getTime());
+        gc = new GregorianCalendar(2099, 01, 12, 00, 00, 00);
+        validFor.setEndDateTime(gc.getTime());
+        usageSpecification.setValidFor(validFor);
+        
+        List<UsageSpecCharacteristic> l_usageSpecCharacteristic = new ArrayList<UsageSpecCharacteristic>();
+        UsageSpecCharacteristic usageSpecCharacteristic = new UsageSpecCharacteristic();
+        usageSpecCharacteristic.setName("originatingCountryCode");
+        usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
+        usageSpecCharacteristic.setDescription("country code of the caller");
+
+        List<UsageSpecCharacteristicValue> l_uscValue = new ArrayList<UsageSpecCharacteristicValue>();
+        UsageSpecCharacteristicValue uscValue = new UsageSpecCharacteristicValue();
+        uscValue.setValueType("number");
+        uscValue.setValue("0123456789");
+        uscValue.setDefault(Boolean.FALSE);
+        l_uscValue.add(uscValue);
+        usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
+        l_usageSpecCharacteristic.add(usageSpecCharacteristic);
+
+        usageSpecCharacteristic = new UsageSpecCharacteristic();
+        usageSpecCharacteristic.setName("originatingNumber");
+        usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
+        usageSpecCharacteristic.setDescription("phone number of the caller");
+        uscValue = new UsageSpecCharacteristicValue();
+        uscValue.setValueType("number");
+        uscValue.setValue("9876543210");
+        uscValue.setDefault(Boolean.TRUE);
+        l_uscValue.add(uscValue);
+        usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
+        l_usageSpecCharacteristic.add(usageSpecCharacteristic);
+        
+        usageSpecCharacteristic = new UsageSpecCharacteristic();
+        usageSpecCharacteristic.setName("destinationNumber");
+        usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
+        usageSpecCharacteristic.setDescription("phone number of the called party");
+        uscValue = new UsageSpecCharacteristicValue();
+        uscValue.setValueType("number");
+        uscValue.setValue("9999999999");
+        uscValue.setDefault(Boolean.FALSE);
+        l_uscValue.add(uscValue);
+        usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
+        l_usageSpecCharacteristic.add(usageSpecCharacteristic);
+        
+        usageSpecCharacteristic = new UsageSpecCharacteristic();
+        usageSpecCharacteristic.setName("duration");
+        usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
+        usageSpecCharacteristic.setDescription("duration of the call");
+        uscValue = new UsageSpecCharacteristicValue();
+        uscValue.setValueType("number");
+        uscValue.setValueFrom("0");
+        uscValue.setDefault(Boolean.FALSE);
+        l_uscValue.add(uscValue);
+        usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
+        l_usageSpecCharacteristic.add(usageSpecCharacteristic);
+        
+        usageSpecCharacteristic = new UsageSpecCharacteristic();
+        usageSpecCharacteristic.setName("unit");
+        usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
+        usageSpecCharacteristic.setDescription("unit of the duration");
+        uscValue = new UsageSpecCharacteristicValue();
+        uscValue.setValueType("number");
+        uscValue.setValue("SEC");
+        uscValue.setDefault(Boolean.FALSE);
+        l_uscValue.add(uscValue);
+        usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
+        l_usageSpecCharacteristic.add(usageSpecCharacteristic);
+        
+        usageSpecCharacteristic = new UsageSpecCharacteristic();
+        usageSpecCharacteristic.setName("startDateTime");
+        usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
+        usageSpecCharacteristic.setDescription("startdate and starttime of the call");
+        uscValue = new UsageSpecCharacteristicValue();
+        uscValue.setValueType("dateTime");
+        uscValue.setValue("2013-04-19T16:42:23-04:00");
+        uscValue.setDefault(Boolean.FALSE);
+        l_uscValue.add(uscValue);
+        usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
+        l_usageSpecCharacteristic.add(usageSpecCharacteristic);
+        
+        usageSpecCharacteristic = new UsageSpecCharacteristic();
+        usageSpecCharacteristic.setName("endDateTime");
+        usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
+        usageSpecCharacteristic.setDescription("enddate and endtime of the call");
+        uscValue = new UsageSpecCharacteristicValue();
+        uscValue.setValueType("dateTime");
+        uscValue.setValue("2013-04-19T18:30:25-04:00");
+        uscValue.setDefault(Boolean.FALSE);
+        l_uscValue.add(uscValue);
+        usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
+        l_usageSpecCharacteristic.add(usageSpecCharacteristic);
+        
+        usageSpecification.setUsageSpecCharacteristic(l_usageSpecCharacteristic);
+        
+        return usageSpecification;
     }
 }

@@ -1,6 +1,8 @@
 package org.tmf.dsmapi.usage;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +25,11 @@ import org.tmf.dsmapi.usage.UsageFacade;
 import org.tmf.dsmapi.usage.event.UsageEvent;
 import org.tmf.dsmapi.usage.event.UsageEventFacade;
 import org.tmf.dsmapi.usage.event.UsageEventPublisherLocal;
+import org.tmf.dsmapi.usage.model.RatedProductUsage;
+import org.tmf.dsmapi.usage.model.RelatedParty;
+import org.tmf.dsmapi.usage.model.Status;
+import org.tmf.dsmapi.usage.model.UsageCharacteristic;
+import org.tmf.dsmapi.usage.model.UsageSpecification;
 
 @Stateless
 @Path("admin/usage")
@@ -89,7 +96,7 @@ public class UsageAdminResource {
         if (usage != null) {
             entity.setId(id);
             usageFacade.edit(entity);
-            publisher.valueChangedNotification(entity, new Date());
+            publisher.updateNotification(entity, new Date());
             // 201 OK + location
             response = Response.status(Response.Status.CREATED).entity(entity).build();
 
@@ -230,5 +237,94 @@ public class UsageAdminResource {
     @Produces({"application/json"})
     public Report count() {
         return new Report(usageFacade.count());
+    }
+
+    @GET
+    @Produces({"application/json"})
+    @Path("proto")
+    public Usage proto() {
+        Usage usage = new Usage();
+        usage.setId(new Long(1));
+        usage.setHref("href/1");
+        usage.setDate(new Date());
+        usage.setType("VOICE");
+        usage.setDescription("Description for individual usage content");
+        usage.setStatus(Status.Rated);
+        
+        List<UsageSpecification> l_usageSpecification = new ArrayList<UsageSpecification>();
+        UsageSpecification usageSpecification = new UsageSpecification();
+        usageSpecification.setId(new Long(22));
+        usageSpecification.setHref("http://serverlocation:port/usageManagement/usageSpecification/22");
+        usageSpecification.setName("Voice usage specification");
+        l_usageSpecification.add(usageSpecification);
+        usage.setUsageSpecification(usageSpecification);
+        
+        List<UsageCharacteristic> l_usageCharacteristic = new ArrayList<UsageCharacteristic>();
+        UsageCharacteristic usageCharacteristic = new UsageCharacteristic();
+        usageCharacteristic.setName("originatingCountryCode");
+        usageCharacteristic.setValue("43");
+        l_usageCharacteristic.add(usageCharacteristic);
+        usageCharacteristic = new UsageCharacteristic();
+        usageCharacteristic.setName("originatingNumber");
+        usageCharacteristic.setValue("676123456789");
+        l_usageCharacteristic.add(usageCharacteristic);
+        usageCharacteristic = new UsageCharacteristic();
+        usageCharacteristic.setName("destinationCountryCode");
+        usageCharacteristic.setValue("49");
+        l_usageCharacteristic.add(usageCharacteristic);
+        usageCharacteristic = new UsageCharacteristic();
+        usageCharacteristic.setName("destinationNumber");
+        usageCharacteristic.setValue("170123456789");
+        l_usageCharacteristic.add(usageCharacteristic);
+        usageCharacteristic = new UsageCharacteristic();
+        usageCharacteristic.setName("duration");
+        usageCharacteristic.setValue("20");
+        l_usageCharacteristic.add(usageCharacteristic);
+        usageCharacteristic = new UsageCharacteristic();
+        usageCharacteristic.setName("unit");
+        usageCharacteristic.setValue("SEC");
+        l_usageCharacteristic.add(usageCharacteristic);
+        usageCharacteristic = new UsageCharacteristic();
+        usageCharacteristic.setName("startDateTime");
+        usageCharacteristic.setValue("2013-04-19T16:42:23-04:00");
+        l_usageCharacteristic.add(usageCharacteristic);
+        usageCharacteristic = new UsageCharacteristic();
+        usageCharacteristic.setName("endDateTime");
+        usageCharacteristic.setValue("2099-01-01T01:00:00-04:00");
+        l_usageCharacteristic.add(usageCharacteristic);
+
+        usage.setUsageCharacteristic(l_usageCharacteristic);
+        
+        List<RelatedParty> l_relatedParty = new ArrayList<RelatedParty>();
+        RelatedParty relatedParty = new RelatedParty();
+        relatedParty.setId("1");
+        relatedParty.setHref("http://serverlocation:port/partyManagement/organization/1");
+        relatedParty.setRole("serviceProvider");
+        l_relatedParty.add(relatedParty);
+        relatedParty.setId("45");
+        relatedParty.setHref("http://serverlocation:port/partyManagement/individual/45");
+        relatedParty.setRole("customer");
+        l_relatedParty.add(relatedParty);
+
+        usage.setRelatedParty(l_relatedParty);
+        
+        List<RatedProductUsage> l_ratedProductUsage = new ArrayList<RatedProductUsage>();
+        RatedProductUsage ratedProductUsage = new RatedProductUsage();
+        GregorianCalendar gc = new GregorianCalendar(2014, 04, 19, 16, 00, 00);
+        ratedProductUsage.setRatingDate(gc.getTime());
+        ratedProductUsage.setUsageRatingTag("Usage");
+        ratedProductUsage.setRatingAmountType("Total");
+        ratedProductUsage.setTaxExcludedRatingAmount(new Float(12.00));
+        ratedProductUsage.setTaxIncludedRatingAmount(new Float(10.00));
+        ratedProductUsage.setTaxRate(new Float(20.00));
+        ratedProductUsage.setIsTaxExempt(Boolean.FALSE);
+        ratedProductUsage.setOfferTariffType("Normal");
+        ratedProductUsage.setBucketValueConvertedInAmount(new Float(0.0));
+        ratedProductUsage.setCurrencyCode("EUR");
+        l_ratedProductUsage.add(ratedProductUsage);
+        
+        usage.setRatedProductUsage(l_ratedProductUsage);
+        
+        return usage;
     }
 }

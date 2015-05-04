@@ -23,25 +23,23 @@ import org.tmf.dsmapi.usage.model.Usage;
 
 @XmlRootElement
 @Entity
-@Table(name="Event_Usage")
-@JsonPropertyOrder(value = {"id", "eventTime", "eventType", "event"})
+@Table(name = "Event_Usage")
+@JsonPropertyOrder(value = {"eventId", "eventTime", "eventType", "event"})
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class UsageEvent implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
+    @JsonProperty("eventId")
     private String id;
-
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = CustomJsonDateSerializer.class)
     private Date eventTime;
-
     @Enumerated(value = EnumType.STRING)
     private UsageEventTypeEnum eventType;
-@JsonIgnore
+    @JsonIgnore
     private Usage resource; //check for object
-@JsonIgnore
+    @JsonIgnore
     public String getId() {
         return id;
     }
@@ -65,30 +63,31 @@ public class UsageEvent implements Serializable {
     public void setEventType(UsageEventTypeEnum eventType) {
         this.eventType = eventType;
     }
+
     @JsonAutoDetect(fieldVisibility = ANY)
     class EventBody {
+
         private Usage usage;
+
         public Usage getUsage() {
             return usage;
         }
-        public EventBody(Usage usage) { 
-        this.usage = usage;
-    }
-    
-       
-    }
-   @JsonProperty("event")
-   public EventBody getEvent() {
-       
-       return new EventBody(getResource() );
-   }
-    
 
+        public EventBody(Usage usage) {
+            this.usage = usage;
+        }
+    }
+
+    @JsonProperty("event")
+    public EventBody getEvent() {
+
+        return new EventBody(getResource());
+    }
 
     @JsonIgnore
     public Usage getResource() {
-        
-        
+
+
         return resource;
     }
 
@@ -100,8 +99,4 @@ public class UsageEvent implements Serializable {
     public String toString() {
         return "UsageEvent{" + "id=" + id + ", eventTime=" + eventTime + ", eventType=" + eventType + ", resource=" + resource + '}';
     }
-
-
-    
-
 }

@@ -57,7 +57,7 @@ public class UsageEventPublisher implements UsageEventPublisherLocal {
     public void createNotification(Usage bean, Date date) {
         UsageEvent event = new UsageEvent();
         event.setEventTime(date);
-        event.setEventType(UsageEventTypeEnum.UsageCreationNotification);
+        event.setEventType(UsageEventTypeEnum.UsageCreateNotification);
         event.setResource(bean);
         publish(event);
 
@@ -67,7 +67,7 @@ public class UsageEventPublisher implements UsageEventPublisherLocal {
     public void deletionNotification(Usage bean, Date date) {
         UsageEvent event = new UsageEvent();
         event.setEventTime(date);
-        event.setEventType(UsageEventTypeEnum.UsageDeletionNotification);
+        event.setEventType(UsageEventTypeEnum.UsageDeleteNotification);
         event.setResource(bean);
         publish(event);
     }
@@ -77,15 +77,6 @@ public class UsageEventPublisher implements UsageEventPublisherLocal {
         UsageEvent event = new UsageEvent();
         event.setEventTime(date);
         event.setEventType(UsageEventTypeEnum.UsageUpdateNotification);
-        event.setResource(bean);
-        publish(event);
-    }
-
-    @Override
-    public void valueChangedNotification(Usage bean, Date date) {
-        UsageEvent event = new UsageEvent();
-        event.setEventTime(date);
-        event.setEventType(UsageEventTypeEnum.UsageValueChangeNotification);
         event.setResource(bean);
         publish(event);
     }

@@ -57,7 +57,7 @@ public class UsageSpecificationEventPublisher implements UsageSpecificationEvent
     public void createNotification(UsageSpecification bean, Date date) {
         UsageSpecificationEvent event = new UsageSpecificationEvent();
         event.setEventTime(date);
-        event.setEventType(UsageSpecificationEventTypeEnum.UsageSpecificationCreationNotification);
+        event.setEventType(UsageSpecificationEventTypeEnum.UsageSpecificationCreateNotification);
         event.setResource(bean);
         publish(event);
 
@@ -67,7 +67,7 @@ public class UsageSpecificationEventPublisher implements UsageSpecificationEvent
     public void deletionNotification(UsageSpecification bean, Date date) {
         UsageSpecificationEvent event = new UsageSpecificationEvent();
         event.setEventTime(date);
-        event.setEventType(UsageSpecificationEventTypeEnum.UsageSpecificationDeletionNotification);
+        event.setEventType(UsageSpecificationEventTypeEnum.UsageSpecificationDeleteNotification);
         event.setResource(bean);
         publish(event);
     }
@@ -81,12 +81,4 @@ public class UsageSpecificationEventPublisher implements UsageSpecificationEvent
         publish(event);
     }
 
-    @Override
-    public void valueChangedNotification(UsageSpecification bean, Date date) {
-        UsageSpecificationEvent event = new UsageSpecificationEvent();
-        event.setEventTime(date);
-        event.setEventType(UsageSpecificationEventTypeEnum.UsageSpecificationValueChangeNotification);
-        event.setResource(bean);
-        publish(event);
-    }
 }

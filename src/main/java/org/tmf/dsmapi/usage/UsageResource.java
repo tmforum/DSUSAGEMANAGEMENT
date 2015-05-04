@@ -11,8 +11,6 @@ import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -27,9 +25,7 @@ import org.tmf.dsmapi.commons.jaxrs.PATCH;
 import org.tmf.dsmapi.commons.utils.Jackson;
 import org.tmf.dsmapi.commons.utils.URIParser;
 import org.tmf.dsmapi.usage.model.Usage;
-import org.tmf.dsmapi.usage.UsageFacade;
 import org.tmf.dsmapi.usage.event.UsageEventPublisherLocal;
-import org.tmf.dsmapi.usage.event.UsageEvent;
 import org.tmf.dsmapi.usage.event.UsageEventFacade;
 
 @Stateless
@@ -52,8 +48,11 @@ public class UsageResource {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    public Response create(Usage entity) throws BadUsageException {
+    public Response create(Usage entity) throws BadUsageException, UnknownResourceException {
+        usageFacade.checkCreation(entity);
         usageFacade.create(entity);
+        entity.setHref("href/".concat(Long.toString(entity.getId())));
+        usageFacade.edit(entity);
         publisher.createNotification(entity, new Date());
         // 201
         Response response = Response.status(Response.Status.CREATED).entity(entity).build();

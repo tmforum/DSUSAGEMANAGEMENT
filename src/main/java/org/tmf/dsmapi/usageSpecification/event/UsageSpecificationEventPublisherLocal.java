@@ -37,12 +37,4 @@ public interface UsageSpecificationEventPublisherLocal {
      */
     public void updateNotification(UsageSpecification bean, Date date);
 
-    /**
-     *
-     * ValueChangeNotification
-     * @param bean the bean which has been changed
-     * @param reason the reason it was changed
-     * @param date the change date
-     */
-    public void valueChangedNotification(UsageSpecification bean, Date date);
 }

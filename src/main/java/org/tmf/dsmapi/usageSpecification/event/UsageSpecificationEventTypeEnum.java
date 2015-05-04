@@ -2,10 +2,9 @@ package org.tmf.dsmapi.usageSpecification.event;
 
 public enum UsageSpecificationEventTypeEnum {
 
-    UsageSpecificationCreationNotification("UsageSpecificationCreationNotification"),
+    UsageSpecificationCreateNotification("UsageSpecificationCreateNotification"),
     UsageSpecificationUpdateNotification("UsageSpecificationUpdateNotification"),
-    UsageSpecificationDeletionNotification("UsageSpecificationDeletionNotification"),
-    UsageSpecificationValueChangeNotification("UsageSpecificationValueChangeNotification");
+    UsageSpecificationDeleteNotification("UsageSpecificationDeleteNotification");
 
     private String text;
 

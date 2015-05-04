@@ -51,8 +51,11 @@ public class UsageSpecificationResource {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    public Response create(UsageSpecification entity) throws BadUsageException {
+    public Response create(UsageSpecification entity) throws BadUsageException, UnknownResourceException {
+        usageSpecificationFacade.checkCreation(entity);
         usageSpecificationFacade.create(entity);
+        entity.setHref("href/".concat(Long.toString(entity.getId())));
+        usageSpecificationFacade.edit(entity);
         publisher.createNotification(entity, new Date());
         // 201
         Response response = Response.status(Response.Status.CREATED).entity(entity).build();

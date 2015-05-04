@@ -23,25 +23,23 @@ import org.tmf.dsmapi.usage.model.UsageSpecification;
 
 @XmlRootElement
 @Entity
-@Table(name="Event_UsageSpecification")
-@JsonPropertyOrder(value = {"id", "eventTime", "eventType", "event"})
+@Table(name = "Event_UsageSpecification")
+@JsonPropertyOrder(value = {"eventId", "eventTime", "eventType", "event"})
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class UsageSpecificationEvent implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-//    @JsonIgnore
+    @JsonProperty("eventId")
     private String id;
-
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = CustomJsonDateSerializer.class)
     private Date eventTime;
-
     @Enumerated(value = EnumType.STRING)
     private UsageSpecificationEventTypeEnum eventType;
-
+    @JsonIgnore
     private UsageSpecification resource; //check for object
-
+    @JsonIgnore
     public String getId() {
         return id;
     }
@@ -66,32 +64,30 @@ public class UsageSpecificationEvent implements Serializable {
         this.eventType = eventType;
     }
 
-    
-
-   
-    
     @JsonAutoDetect(fieldVisibility = ANY)
     class EventBody {
+
         private UsageSpecification usageSpecification;
+
         public UsageSpecification getUsageSpecification() {
             return usageSpecification;
         }
-        public EventBody(UsageSpecification usageSpecification) { 
-        this.usageSpecification = usageSpecification;
+
+        public EventBody(UsageSpecification usageSpecification) {
+            this.usageSpecification = usageSpecification;
+        }
     }
-    
-       
+
+    @JsonProperty("event")
+    public EventBody getEvent() {
+
+        return new EventBody(getResource());
     }
-   @JsonProperty("event")
-   public EventBody getEvent() {
-       
-       return new EventBody(getResource() );
-   }
-    
-@JsonIgnore
+
+    @JsonIgnore
     public UsageSpecification getResource() {
-        
-        
+
+
         return resource;
     }
 
@@ -103,8 +99,4 @@ public class UsageSpecificationEvent implements Serializable {
     public String toString() {
         return "UsageSpecificationEvent{" + "id=" + id + ", eventTime=" + eventTime + ", eventType=" + eventType + ", resource=" + resource + '}';
     }
-
-
-   
-
 }

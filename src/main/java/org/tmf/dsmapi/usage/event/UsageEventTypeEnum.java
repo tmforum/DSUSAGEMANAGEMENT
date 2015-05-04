@@ -2,10 +2,9 @@ package org.tmf.dsmapi.usage.event;
 
 public enum UsageEventTypeEnum {
 
-    UsageCreationNotification("UsageCreationNotification"),
+    UsageCreateNotification("UsageCreateNotification"),
     UsageUpdateNotification("UsageUpdateNotification"),
-    UsageDeletionNotification("UsageDeletionNotification"),
-    UsageValueChangeNotification("UsageValueChangeNotification"),
+    UsageDeleteNotification("UsageDeleteNotification"),
     UsageStatusChangedNotification("UsageStatusChangedNotification");
     
 

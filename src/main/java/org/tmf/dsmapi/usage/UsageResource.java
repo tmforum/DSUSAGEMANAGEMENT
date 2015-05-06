@@ -51,7 +51,7 @@ public class UsageResource {
     public Response create(Usage entity) throws BadUsageException, UnknownResourceException {
         usageFacade.checkCreation(entity);
         usageFacade.create(entity);
-        entity.setHref("href/".concat(Long.toString(entity.getId())));
+        entity.setHref("http://serverLocalisation:port/DSUsageManagement/api/usageManagement/v2/usage/".concat(Long.toString(entity.getId())));
         usageFacade.edit(entity);
         publisher.createNotification(entity, new Date());
         // 201

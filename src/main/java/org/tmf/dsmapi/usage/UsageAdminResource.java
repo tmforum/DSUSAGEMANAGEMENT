@@ -245,7 +245,7 @@ public class UsageAdminResource {
     public Usage proto() {
         Usage usage = new Usage();
         usage.setId(new Long(1));
-        usage.setHref("href/1");
+        usage.setHref("http://serverLocalisation:port/DSUsageManagement/api/usageManagement/v2/usage/1");
         usage.setDate(new Date());
         usage.setType("VOICE");
         usage.setDescription("Description for individual usage content");

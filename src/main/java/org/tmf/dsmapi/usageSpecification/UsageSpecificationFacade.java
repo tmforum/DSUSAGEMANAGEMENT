@@ -40,7 +40,8 @@ public class UsageSpecificationFacade extends AbstractFacade<UsageSpecification>
     }
 
     public void checkCreation(UsageSpecification newUsageSpecification) throws BadUsageException {
-        if (null != newUsageSpecification.getUsageSpecCharacteristic()) {
+        if (null != newUsageSpecification.getUsageSpecCharacteristic()
+                && ! newUsageSpecification.getUsageSpecCharacteristic().isEmpty() ) {
             for (UsageSpecCharacteristic usc : newUsageSpecification.getUsageSpecCharacteristic()) {
                 if (null == usc.getName()) {
                     throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS, 

@@ -103,7 +103,8 @@ public class UsageFacade extends AbstractFacade<Usage> {
     }
 
     public void checkRules(Usage usage) throws BadUsageException {
-        if (null != usage.getUsageCharacteristic()) {
+        if (null != usage.getUsageCharacteristic()
+                && ! usage.getUsageCharacteristic().isEmpty()) {
             for (UsageCharacteristic usageCharacteristic : usage.getUsageCharacteristic()) {
                 if (null == usageCharacteristic.getName()) {
                     throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS,
@@ -116,7 +117,8 @@ public class UsageFacade extends AbstractFacade<Usage> {
             }
         }
 
-        if (null != usage.getRelatedParty()) {
+        if (null != usage.getRelatedParty()
+                && !usage.getRelatedParty().isEmpty()) {
             for (RelatedParty relatedParty : usage.getRelatedParty()) {
                 if (null == relatedParty.getRole()) {
                     throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS,
@@ -129,7 +131,8 @@ public class UsageFacade extends AbstractFacade<Usage> {
 
     public void checkStatus(Usage usage) throws BadUsageException {
         if (usage.getStatus() == Status.Rated || usage.getStatus() == Status.Billed) {
-            if (null == usage.getRatedProductUsage()) {
+            if (null == usage.getRatedProductUsage()
+                    || usage.getRatedProductUsage().isEmpty() ) {
                 throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS,
                         "ratedProductUsage is mandatory if status is 'rated' or 'billed'");
             } else {

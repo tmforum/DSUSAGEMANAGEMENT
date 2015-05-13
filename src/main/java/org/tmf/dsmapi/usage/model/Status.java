@@ -75,4 +75,9 @@ public enum Status {
         throw new IllegalArgumentException(v);
     }
 
+    @Override
+    public String toString() {
+        return value();
+    }
+
 }

@@ -51,10 +51,10 @@ public class UsageSpecificationResource {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    public Response create(UsageSpecification entity) throws BadUsageException, UnknownResourceException {
+    public Response create(UsageSpecification entity, @Context UriInfo info) throws BadUsageException, UnknownResourceException {
         usageSpecificationFacade.checkCreation(entity);
         usageSpecificationFacade.create(entity);
-        entity.setHref("http://serverLocalisation:port/DSUsageManagement/api/usageManagement/v2/usageSpecification/".concat(Long.toString(entity.getId())));
+        entity.setHref(info.getAbsolutePath()+ "/" + Long.toString(entity.getId()));
         usageSpecificationFacade.edit(entity);
         publisher.createNotification(entity, new Date());
         // 201

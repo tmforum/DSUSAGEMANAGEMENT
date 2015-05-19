@@ -16,7 +16,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import org.tmf.dsmapi.commons.exceptions.BadUsageException;
 import org.tmf.dsmapi.commons.exceptions.UnknownResourceException;
 import org.tmf.dsmapi.commons.jaxrs.Report;
@@ -39,8 +41,8 @@ public class UsageAdminResource {
     UsageFacade usageFacade;
     @EJB
     UsageEventFacade eventFacade;
-    @EJB
-    UsageEventPublisherLocal publisher;
+//    @EJB
+//    UsageEventPublisherLocal publisher;
 
     @GET
     @Produces({"application/json"})
@@ -51,27 +53,32 @@ public class UsageAdminResource {
     /**
      *
      * For test purpose only
+     *
      * @param entities
      * @return
      */
     @POST
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    public Response post(List<Usage> entities) {
+    public Response post(List<Usage> entities, @Context UriInfo info) throws UnknownResourceException {
 
         if (entities == null) {
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
         }
 
         int previousRows = usageFacade.count();
-        int affectedRows;
+        int affectedRows=0;
 
         // Try to persist entities
         try {
-            affectedRows = usageFacade.create(entities);
             for (Usage entitie : entities) {
-                publisher.createNotification(entitie, new Date());
+                usageFacade.create(entitie);
+                entitie.setHref(info.getAbsolutePath() + "/" + Long.toString(entitie.getId()));
+                usageFacade.edit(entitie);
+                affectedRows = affectedRows + 1;
+//                publisher.createNotification(entitie, new Date());
             }
+//            affectedRows = usageFacade.create(entities);
         } catch (BadUsageException e) {
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
         }
@@ -96,9 +103,9 @@ public class UsageAdminResource {
         if (usage != null) {
             entity.setId(id);
             usageFacade.edit(entity);
-            publisher.updateNotification(entity, new Date());
-            // 201 OK + location
-            response = Response.status(Response.Status.CREATED).entity(entity).build();
+//            publisher.updateNotification(entity, new Date());
+            // 200 OK + location
+            response = Response.status(Response.Status.OK).entity(entity).build();
 
         } else {
             // 404 not found
@@ -110,6 +117,7 @@ public class UsageAdminResource {
     /**
      *
      * For test purpose only
+     *
      * @return
      * @throws org.tmf.dsmapi.commons.exceptions.UnknownResourceException
      */
@@ -137,6 +145,7 @@ public class UsageAdminResource {
     /**
      *
      * For test purpose only
+     *
      * @param id
      * @return
      * @throws UnknownResourceException
@@ -144,41 +153,35 @@ public class UsageAdminResource {
     @DELETE
     @Path("{id}")
     public Response delete(@PathParam("id") Long id) throws UnknownResourceException {
+        int previousRows = usageFacade.count();
+        Usage entity = usageFacade.find(id);
+
+        // Event deletion
+//        publisher.deletionNotification(entity, new Date());
         try {
-            int previousRows = usageFacade.count();
-            Usage entity = usageFacade.find(id);
-
-            // Event deletion
-            publisher.deletionNotification(entity, new Date());
-            try {
-                //Pause for 4 seconds to finish notification
-                Thread.sleep(4000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(UsageAdminResource.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            // remove event(s) binding to the resource
-            List<UsageEvent> events = eventFacade.findAll();
-            for (UsageEvent event : events) {
-                if (event.getResource().getId().equals(id)) {
-                    eventFacade.remove(event.getId());
-                }
-            }
-            //remove resource
-            usageFacade.remove(id);
-
-            int affectedRows = 1;
-            Report stat = new Report(usageFacade.count());
-            stat.setAffectedRows(affectedRows);
-            stat.setPreviousRows(previousRows);
-
-            // 200 
-            Response response = Response.ok(stat).build();
-            return response;
-        } catch (UnknownResourceException ex) {
+            //Pause for 4 seconds to finish notification
+            Thread.sleep(4000);
+        } catch (InterruptedException ex) {
             Logger.getLogger(UsageAdminResource.class.getName()).log(Level.SEVERE, null, ex);
-            Response response = Response.status(Response.Status.NOT_FOUND).build();
-            return response;
         }
+        // remove event(s) binding to the resource
+        List<UsageEvent> events = eventFacade.findAll();
+        for (UsageEvent event : events) {
+            if (event.getResource().getId().equals(id)) {
+                eventFacade.remove(event.getId());
+            }
+        }
+        //remove resource
+        usageFacade.remove(id);
+
+        int affectedRows = 1;
+        Report stat = new Report(usageFacade.count());
+        stat.setAffectedRows(affectedRows);
+        stat.setPreviousRows(previousRows);
+
+        // 200 
+        Response response = Response.ok(stat).build();
+        return response;
     }
 
     @GET
@@ -250,7 +253,7 @@ public class UsageAdminResource {
         usage.setType("VOICE");
         usage.setDescription("Description for individual usage content");
         usage.setStatus(Status.Rated);
-        
+
         List<UsageSpecification> l_usageSpecification = new ArrayList<UsageSpecification>();
         UsageSpecification usageSpecification = new UsageSpecification();
         usageSpecification.setId(new Long(22));
@@ -258,7 +261,7 @@ public class UsageAdminResource {
         usageSpecification.setName("Voice usage specification");
         l_usageSpecification.add(usageSpecification);
         usage.setUsageSpecification(usageSpecification);
-        
+
         List<UsageCharacteristic> l_usageCharacteristic = new ArrayList<UsageCharacteristic>();
         UsageCharacteristic usageCharacteristic = new UsageCharacteristic();
         usageCharacteristic.setName("originatingCountryCode");
@@ -294,7 +297,7 @@ public class UsageAdminResource {
         l_usageCharacteristic.add(usageCharacteristic);
 
         usage.setUsageCharacteristic(l_usageCharacteristic);
-        
+
         List<RelatedParty> l_relatedParty = new ArrayList<RelatedParty>();
         RelatedParty relatedParty = new RelatedParty();
         relatedParty.setId("1");
@@ -307,7 +310,7 @@ public class UsageAdminResource {
         l_relatedParty.add(relatedParty);
 
         usage.setRelatedParty(l_relatedParty);
-        
+
         List<RatedProductUsage> l_ratedProductUsage = new ArrayList<RatedProductUsage>();
         RatedProductUsage ratedProductUsage = new RatedProductUsage();
         GregorianCalendar gc = new GregorianCalendar(2014, 04, 19, 16, 00, 00);
@@ -322,9 +325,9 @@ public class UsageAdminResource {
         ratedProductUsage.setBucketValueConvertedInAmount(new Float(0.0));
         ratedProductUsage.setCurrencyCode("EUR");
         l_ratedProductUsage.add(ratedProductUsage);
-        
+
         usage.setRatedProductUsage(l_ratedProductUsage);
-        
+
         return usage;
     }
 }

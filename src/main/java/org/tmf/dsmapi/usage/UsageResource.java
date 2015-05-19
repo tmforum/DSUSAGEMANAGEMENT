@@ -148,8 +148,8 @@ public class UsageResource {
         Response response = null;
         Usage currentProduct = usageFacade.updateAttributs(id, partialUsage);
         
-        // 201 OK + location
-        response = Response.status(Response.Status.CREATED).entity(currentProduct).build();
+        // 200 OK + location
+        response = Response.status(Response.Status.OK).entity(currentProduct).build();
 
         return response;
     }

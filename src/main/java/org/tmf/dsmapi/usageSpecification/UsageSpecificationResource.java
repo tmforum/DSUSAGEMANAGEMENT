@@ -152,8 +152,7 @@ public class UsageSpecificationResource {
      */
     @DELETE
     @Path("{id}")
-    public Response delete(@PathParam("id") long id) {
-        try {
+    public Response delete(@PathParam("id") long id) throws UnknownResourceException {
             UsageSpecification entity = usageSpecificationFacade.find(id);
 
             // Event deletion
@@ -174,13 +173,8 @@ public class UsageSpecificationResource {
             //remove resource
             usageSpecificationFacade.remove(id);
 
-            // 200 
-            Response response = Response.ok(entity).build();
-            return response;
-        } catch (UnknownResourceException ex) {
-            Response response = Response.status(Response.Status.NOT_FOUND).build();
-            return response;
-        }
+            // 204 
+            return Response.status(Response.Status.NO_CONTENT).build();
     }
 
 }

@@ -16,7 +16,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import org.tmf.dsmapi.commons.exceptions.BadUsageException;
 import org.tmf.dsmapi.commons.exceptions.UnknownResourceException;
 import org.tmf.dsmapi.commons.jaxrs.Report;
@@ -39,8 +41,8 @@ public class UsageSpecificationAdminResource {
     UsageSpecificationFacade usageSpecificationFacade;
     @EJB
     UsageSpecificationEventFacade eventFacade;
-    @EJB
-    UsageSpecificationEventPublisherLocal publisher;
+//    @EJB
+//    UsageSpecificationEventPublisherLocal publisher;
 
     @GET
     @Produces({"application/json"})
@@ -58,20 +60,27 @@ public class UsageSpecificationAdminResource {
     @POST
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    public Response post(List<UsageSpecification> entities) {
+    public Response post(List<UsageSpecification> entities, @Context UriInfo info) throws UnknownResourceException {
 
         if (entities == null) {
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
         }
 
         int previousRows = usageSpecificationFacade.count();
-        int affectedRows;
+        int affectedRows=0;
 
         // Try to persist entities
         try {
-            affectedRows = usageSpecificationFacade.create(entities);
             for (UsageSpecification entitie : entities) {
-                publisher.createNotification(entitie, new Date());
+                usageSpecificationFacade.create(entitie);
+                entitie.setHref(info.getAbsolutePath() + "/" + Long.toString(entitie.getId()));
+                usageSpecificationFacade.edit(entitie);
+                affectedRows = affectedRows + 1;
+//                publisher.createNotification(entitie, new Date());
+            }
+//            affectedRows = usageSpecificationFacade.create(entities);
+            for (UsageSpecification entitie : entities) {
+//                publisher.createNotification(entitie, new Date());
             }
         } catch (BadUsageException e) {
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode()).build();
@@ -97,9 +106,9 @@ public class UsageSpecificationAdminResource {
         if (usageSpecification != null) {
             entity.setId(id);
             usageSpecificationFacade.edit(entity);
-            publisher.updateNotification(entity, new Date());
-            // 201 OK + location
-            response = Response.status(Response.Status.CREATED).entity(entity).build();
+//            publisher.updateNotification(entity, new Date());
+            // 200 OK + location
+            response = Response.status(Response.Status.OK).entity(entity).build();
 
         } else {
             // 404 not found
@@ -147,41 +156,35 @@ public class UsageSpecificationAdminResource {
     @DELETE
     @Path("{id}")
     public Response delete(@PathParam("id") Long id) throws UnknownResourceException {
+        int previousRows = usageSpecificationFacade.count();
+        UsageSpecification entity = usageSpecificationFacade.find(id);
+
+        // Event deletion
+//        publisher.deletionNotification(entity, new Date());
         try {
-            int previousRows = usageSpecificationFacade.count();
-            UsageSpecification entity = usageSpecificationFacade.find(id);
-
-            // Event deletion
-            publisher.deletionNotification(entity, new Date());
-            try {
-                //Pause for 4 seconds to finish notification
-                Thread.sleep(4000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(UsageSpecificationAdminResource.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            // remove event(s) binding to the resource
-            List<UsageSpecificationEvent> events = eventFacade.findAll();
-            for (UsageSpecificationEvent event : events) {
-                if (event.getResource().getId().equals(id)) {
-                    eventFacade.remove(event.getId());
-                }
-            }
-            //remove resource
-            usageSpecificationFacade.remove(id);
-
-            int affectedRows = 1;
-            Report stat = new Report(usageSpecificationFacade.count());
-            stat.setAffectedRows(affectedRows);
-            stat.setPreviousRows(previousRows);
-
-            // 200 
-            Response response = Response.ok(stat).build();
-            return response;
-        } catch (UnknownResourceException ex) {
+            //Pause for 4 seconds to finish notification
+            Thread.sleep(4000);
+        } catch (InterruptedException ex) {
             Logger.getLogger(UsageSpecificationAdminResource.class.getName()).log(Level.SEVERE, null, ex);
-            Response response = Response.status(Response.Status.NOT_FOUND).build();
-            return response;
         }
+        // remove event(s) binding to the resource
+        List<UsageSpecificationEvent> events = eventFacade.findAll();
+        for (UsageSpecificationEvent event : events) {
+            if (event.getResource().getId().equals(id)) {
+                eventFacade.remove(event.getId());
+            }
+        }
+        //remove resource
+        usageSpecificationFacade.remove(id);
+
+        int affectedRows = 1;
+        Report stat = new Report(usageSpecificationFacade.count());
+        stat.setAffectedRows(affectedRows);
+        stat.setPreviousRows(previousRows);
+
+        // 200 
+        Response response = Response.ok(stat).build();
+        return response;
     }
 
     @GET
@@ -251,14 +254,14 @@ public class UsageSpecificationAdminResource {
         usageSpecification.setHref("http://serverlocation:port/usageManagement/usageSpecification/22");
         usageSpecification.setName("VoiceSpec");
         usageSpecification.setDescription("Spec for voice calls usage");
-        
+
         ValidFor validFor = new ValidFor();
         GregorianCalendar gc = new GregorianCalendar(2015, 04, 30, 12, 00, 00);
         validFor.setStartDateTime(gc.getTime());
         gc = new GregorianCalendar(2099, 01, 12, 00, 00, 00);
         validFor.setEndDateTime(gc.getTime());
         usageSpecification.setValidFor(validFor);
-        
+
         List<UsageSpecCharacteristic> l_usageSpecCharacteristic = new ArrayList<UsageSpecCharacteristic>();
         UsageSpecCharacteristic usageSpecCharacteristic = new UsageSpecCharacteristic();
         usageSpecCharacteristic.setName("originatingCountryCode");
@@ -285,7 +288,7 @@ public class UsageSpecificationAdminResource {
         l_uscValue.add(uscValue);
         usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
         l_usageSpecCharacteristic.add(usageSpecCharacteristic);
-        
+
         usageSpecCharacteristic = new UsageSpecCharacteristic();
         usageSpecCharacteristic.setName("destinationNumber");
         usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
@@ -297,7 +300,7 @@ public class UsageSpecificationAdminResource {
         l_uscValue.add(uscValue);
         usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
         l_usageSpecCharacteristic.add(usageSpecCharacteristic);
-        
+
         usageSpecCharacteristic = new UsageSpecCharacteristic();
         usageSpecCharacteristic.setName("duration");
         usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
@@ -309,7 +312,7 @@ public class UsageSpecificationAdminResource {
         l_uscValue.add(uscValue);
         usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
         l_usageSpecCharacteristic.add(usageSpecCharacteristic);
-        
+
         usageSpecCharacteristic = new UsageSpecCharacteristic();
         usageSpecCharacteristic.setName("unit");
         usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
@@ -321,7 +324,7 @@ public class UsageSpecificationAdminResource {
         l_uscValue.add(uscValue);
         usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
         l_usageSpecCharacteristic.add(usageSpecCharacteristic);
-        
+
         usageSpecCharacteristic = new UsageSpecCharacteristic();
         usageSpecCharacteristic.setName("startDateTime");
         usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
@@ -333,7 +336,7 @@ public class UsageSpecificationAdminResource {
         l_uscValue.add(uscValue);
         usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
         l_usageSpecCharacteristic.add(usageSpecCharacteristic);
-        
+
         usageSpecCharacteristic = new UsageSpecCharacteristic();
         usageSpecCharacteristic.setName("endDateTime");
         usageSpecCharacteristic.setConfigurable(Boolean.TRUE);
@@ -345,9 +348,9 @@ public class UsageSpecificationAdminResource {
         l_uscValue.add(uscValue);
         usageSpecCharacteristic.setUsageSpecCharacteristicValue(l_uscValue);
         l_usageSpecCharacteristic.add(usageSpecCharacteristic);
-        
+
         usageSpecification.setUsageSpecCharacteristic(l_usageSpecCharacteristic);
-        
+
         return usageSpecification;
     }
 }

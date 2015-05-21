@@ -37,16 +37,15 @@ public class UsageFacade extends AbstractFacade<Usage> {
         return em;
     }
 
-    @Override
-    public void create(Usage entity) throws BadUsageException {
-        if (entity.getId() != null) {
-            throw new BadUsageException(ExceptionType.BAD_USAGE_GENERIC, "While creating Usage, id must be null");
+    public void checkCreation(Usage newUsage) throws BadUsageException, UnknownResourceException {
+
+        if (newUsage.getId() != null) {
+            if (this.find(newUsage.getId()) != null) {
+                throw new BadUsageException(ExceptionType.BAD_USAGE_GENERIC,
+                        "Duplicate Exception, Usage with same id :" + newUsage.getId() + " alreay exists");
+            }
         }
 
-        super.create(entity);
-    }
-
-    public void checkCreation(Usage newUsage) throws BadUsageException {
         //verify status
         if (null == newUsage.getStatus() || newUsage.getStatus().name().equalsIgnoreCase("")) {
             newUsage.setStatus(Status.Received);
@@ -58,13 +57,14 @@ public class UsageFacade extends AbstractFacade<Usage> {
             throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS, "date is mandatory");
         }
 
-        if (null == newUsage.getType()) {
+        if (null == newUsage.getType()
+                || newUsage.getType().isEmpty()) {
             throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS, "type is mandatory");
         }
 
     }
 
-    public Usage updateAttributs(long id, Usage partialUsage) throws UnknownResourceException, BadUsageException {
+    public Usage patchAttributs(long id, Usage partialUsage) throws UnknownResourceException, BadUsageException {
         Usage currentProduct = this.find(id);
 
         if (currentProduct == null) {
@@ -83,7 +83,7 @@ public class UsageFacade extends AbstractFacade<Usage> {
         
         checkStatus(partialUsage);
         
-        checkRules(partialUsage);
+        checkPatchRules(partialUsage);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.convertValue(partialUsage, JsonNode.class);
@@ -102,15 +102,17 @@ public class UsageFacade extends AbstractFacade<Usage> {
         return currentProduct;
     }
 
-    public void checkRules(Usage usage) throws BadUsageException {
+    public void checkPatchRules(Usage usage) throws BadUsageException {
         if (null != usage.getUsageCharacteristic()
                 && ! usage.getUsageCharacteristic().isEmpty()) {
             for (UsageCharacteristic usageCharacteristic : usage.getUsageCharacteristic()) {
-                if (null == usageCharacteristic.getName()) {
+                if (null == usageCharacteristic.getName()
+                        || usageCharacteristic.getName().isEmpty()) {
                     throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS,
                             "usageCharacteristic.name is mandatory");
                 }
-                if (null == usageCharacteristic.getValue()) {
+                if (null == usageCharacteristic.getValue()
+                        || usageCharacteristic.getValue().isEmpty()) {
                     throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS,
                             "usageCharacteristic.value is mandatory");
                 }
@@ -120,7 +122,8 @@ public class UsageFacade extends AbstractFacade<Usage> {
         if (null != usage.getRelatedParty()
                 && !usage.getRelatedParty().isEmpty()) {
             for (RelatedParty relatedParty : usage.getRelatedParty()) {
-                if (null == relatedParty.getRole()) {
+                if (null == relatedParty.getRole()
+                        || relatedParty.getRole().isEmpty()) {
                     throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS,
                             "relatedParty.role is mandatory");
                 }
@@ -153,27 +156,32 @@ public class UsageFacade extends AbstractFacade<Usage> {
                         throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS,
                                 "ratedProductUsage.taxRate is mandatory if status is 'rated' or 'billed'");
                     }
-                    if (null == rpu.getCurrencyCode()) {
+                    if (null == rpu.getCurrencyCode()
+                            || rpu.getCurrencyCode().isEmpty()) {
                         throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS,
                                 "ratedProductUsage.currencyCode is mandatory if status is 'rated' or 'billed'");
                     }
-                    if (null == rpu.getProductRef()) {
+                    if (null == rpu.getProductRef()
+                            || rpu.getProductRef().isEmpty()) {
                         throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS,
                                 "ratedProductUsage.productRef is mandatory if status is 'rated' or 'billed'");
                     }
-                    if (null == rpu.getUsageRatingTag()) {
+                    if (null == rpu.getUsageRatingTag()
+                            || rpu.getUsageRatingTag().isEmpty()) {
                         rpu.setUsageRatingTag("Usage");
                     }
                     if (null == rpu.isIsBilled()) {
                         rpu.setIsBilled(Boolean.FALSE);
                     }
-                    if (null == rpu.getRatingAmountType()) {
+                    if (null == rpu.getRatingAmountType()
+                            || rpu.getRatingAmountType().isEmpty()) {
                         rpu.setRatingAmountType("Total");
                     }
                     if (null == rpu.isIsTaxExempt()) {
                         rpu.setIsTaxExempt(Boolean.FALSE);
                     }
-                    if (null == rpu.getOfferTariffType()) {
+                    if (null == rpu.getOfferTariffType()
+                            || rpu.getOfferTariffType().isEmpty()) {
                         rpu.setOfferTariffType("Normal");
                     }
                 }

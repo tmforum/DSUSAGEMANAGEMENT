@@ -72,14 +72,11 @@ public class UsageSpecificationAdminResource {
         // Try to persist entities
         try {
             for (UsageSpecification entitie : entities) {
+                usageSpecificationFacade.checkCreation(entitie);
                 usageSpecificationFacade.create(entitie);
                 entitie.setHref(info.getAbsolutePath() + "/" + Long.toString(entitie.getId()));
                 usageSpecificationFacade.edit(entitie);
                 affectedRows = affectedRows + 1;
-//                publisher.createNotification(entitie, new Date());
-            }
-//            affectedRows = usageSpecificationFacade.create(entities);
-            for (UsageSpecification entitie : entities) {
 //                publisher.createNotification(entitie, new Date());
             }
         } catch (BadUsageException e) {

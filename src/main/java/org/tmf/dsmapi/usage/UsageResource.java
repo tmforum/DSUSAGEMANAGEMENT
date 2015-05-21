@@ -146,7 +146,7 @@ public class UsageResource {
     @Produces({"application/json"})
     public Response patch(@PathParam("id") long id, Usage partialUsage) throws BadUsageException, UnknownResourceException {
         Response response = null;
-        Usage currentProduct = usageFacade.updateAttributs(id, partialUsage);
+        Usage currentProduct = usageFacade.patchAttributs(id, partialUsage);
         
         // 200 OK + location
         response = Response.status(Response.Status.OK).entity(currentProduct).build();

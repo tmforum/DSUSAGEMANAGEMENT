@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.tmf.dsmapi.commons.exceptions.BadUsageException;
 import org.tmf.dsmapi.commons.exceptions.ExceptionType;
+import org.tmf.dsmapi.commons.exceptions.UnknownResourceException;
 import org.tmf.dsmapi.usage.model.Usage;
 import org.tmf.dsmapi.usage.model.UsageSpecCharacteristic;
 import org.tmf.dsmapi.usage.model.UsageSpecCharacteristicValue;
@@ -30,29 +31,31 @@ public class UsageSpecificationFacade extends AbstractFacade<UsageSpecification>
         return em;
     }
 
-    @Override
-    public void create(UsageSpecification entity) throws BadUsageException {
-        if (entity.getId() != null) {
-            throw new BadUsageException(ExceptionType.BAD_USAGE_GENERIC, "While creating UsageSpecification, id must be null");
+    public void checkCreation(UsageSpecification newUsageSpecification) throws BadUsageException, UnknownResourceException {
+        
+        if (newUsageSpecification.getId() != null) {
+            if (this.find(newUsageSpecification.getId()) != null) {
+                throw new BadUsageException(ExceptionType.BAD_USAGE_GENERIC,
+                        "Duplicate Exception, UsageSpecification with same id :" + newUsageSpecification.getId() + " alreay exists");
+            }
         }
 
-        super.create(entity);
-    }
-
-    public void checkCreation(UsageSpecification newUsageSpecification) throws BadUsageException {
         if (null != newUsageSpecification.getUsageSpecCharacteristic()
                 && ! newUsageSpecification.getUsageSpecCharacteristic().isEmpty() ) {
             for (UsageSpecCharacteristic usc : newUsageSpecification.getUsageSpecCharacteristic()) {
-                if (null == usc.getName()) {
+                if (null == usc.getName()
+                        || usc.getName().isEmpty()) {
                     throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS, 
                             "usageSpecCharacteristic.name is mandatory");
                 }
-                if (null == usc.getUsageSpecCharacteristicValue()) {
+                if (null == usc.getUsageSpecCharacteristicValue()
+                        || usc.getUsageSpecCharacteristicValue().isEmpty()) {
                     throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS, 
                             "usageSpecCharacteristic.usageSpecCharacteristicValue is mandatory");
                 } else {
                     for (UsageSpecCharacteristicValue uscValue : usc.getUsageSpecCharacteristicValue()) {
-                        if (null == uscValue.getValueType()) {
+                        if (null == uscValue.getValueType()
+                                || uscValue.getValueType().isEmpty()) {
                     throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS, 
                             "usageSpecCharacteristic.usageSpecCharacteristicValue.valueType is mandatory");
                         }

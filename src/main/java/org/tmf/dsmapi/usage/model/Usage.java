@@ -97,7 +97,7 @@ public class Usage
     protected String type;
     protected String description;
     protected Status status;
-    protected UsageSpecification usageSpecification;
+    protected Reference usageSpecification;
     protected List<UsageCharacteristic> usageCharacteristic;
     protected List<RelatedParty> relatedParty;
     protected List<RatedProductUsage> ratedProductUsage;
@@ -269,11 +269,11 @@ public class Usage
      *     {@link UsageSpecification }
      *     
      */
-    @ManyToOne(targetEntity = UsageSpecification.class, cascade = {
+    @ManyToOne(targetEntity = Reference.class, cascade = {
         CascadeType.ALL
     })
     @JoinColumn(name = "USAGE_SPECIFICATION_USAGE__ID")
-    public UsageSpecification getUsageSpecification() {
+    public Reference getUsageSpecification() {
         return usageSpecification;
     }
 
@@ -285,7 +285,7 @@ public class Usage
      *     {@link UsageSpecification }
      *     
      */
-    public void setUsageSpecification(UsageSpecification value) {
+    public void setUsageSpecification(Reference value) {
         this.usageSpecification = value;
     }
 

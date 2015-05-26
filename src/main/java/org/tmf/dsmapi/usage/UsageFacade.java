@@ -50,7 +50,10 @@ public class UsageFacade extends AbstractFacade<Usage> {
         if (null == newUsage.getStatus() || newUsage.getStatus().name().equalsIgnoreCase("")) {
             newUsage.setStatus(Status.Received);
         } else {
-            checkStatus(newUsage);
+            if ( ! newUsage.getStatus().name().equalsIgnoreCase(Status.Received.name())) {
+                throw new BadUsageException(ExceptionType.BAD_USAGE_GENERIC, "status "+newUsage.getStatus().name()+" is not the first status, attempt : "+Status.Received.name());
+            }
+            checkRulesStatus(newUsage);
         }
 
         if (null == newUsage.getDate()) {
@@ -81,7 +84,7 @@ public class UsageFacade extends AbstractFacade<Usage> {
                     "href is not patchable");
         }
         
-        checkStatus(partialUsage);
+        checkRulesStatus(partialUsage);
         
         checkPatchRules(partialUsage);
 
@@ -90,8 +93,6 @@ public class UsageFacade extends AbstractFacade<Usage> {
         if (null != partialUsage.getStatus()) {
             stateModel.checkTransition(currentProduct.getStatus(), partialUsage.getStatus());
             publisher.statusChangedNotification(currentProduct, new Date());
-//        } else {
-//            throw new BadUsageException(ExceptionType.BAD_USAGE_MANDATORY_FIELDS, "state" + " is not found");
         }
 
         partialUsage.setId(id);
@@ -132,7 +133,7 @@ public class UsageFacade extends AbstractFacade<Usage> {
 
     }
 
-    public void checkStatus(Usage usage) throws BadUsageException {
+    public void checkRulesStatus(Usage usage) throws BadUsageException {
         if (usage.getStatus() == Status.Rated || usage.getStatus() == Status.Billed) {
             if (null == usage.getRatedProductUsage()
                     || usage.getRatedProductUsage().isEmpty() ) {

@@ -28,6 +28,7 @@ import org.tmf.dsmapi.usage.event.UsageEvent;
 import org.tmf.dsmapi.usage.event.UsageEventFacade;
 import org.tmf.dsmapi.usage.event.UsageEventPublisherLocal;
 import org.tmf.dsmapi.usage.model.RatedProductUsage;
+import org.tmf.dsmapi.usage.model.Reference;
 import org.tmf.dsmapi.usage.model.RelatedParty;
 import org.tmf.dsmapi.usage.model.Status;
 import org.tmf.dsmapi.usage.model.UsageCharacteristic;
@@ -254,9 +255,9 @@ public class UsageAdminResource {
         usage.setDescription("Description for individual usage content");
         usage.setStatus(Status.Rated);
 
-        List<UsageSpecification> l_usageSpecification = new ArrayList<UsageSpecification>();
-        UsageSpecification usageSpecification = new UsageSpecification();
-        usageSpecification.setId(new Long(22));
+        List<Reference> l_usageSpecification = new ArrayList<Reference>();
+        Reference usageSpecification = new Reference();
+        usageSpecification.setId("22");
         usageSpecification.setHref("http://serverlocation:port/usageManagement/usageSpecification/22");
         usageSpecification.setName("Voice usage specification");
         l_usageSpecification.add(usageSpecification);
